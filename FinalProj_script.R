@@ -3,24 +3,17 @@ library(devtools)
 install_github("ropensci/prism") #use this instead of install.packages("prism") to get latest version 
 packageVersion("prism") #should be >= 0.2.0 (required for 'prism_set_dl_dir')
 library(prism)
-#install.packages("tigris")
-#install.packages("terra")
-#library(terra)
-#install.packages("magrittr")
-#library(magrittr)
-#install.packages("exactextractr")
-#library(exactextractr)
-install.packages("sf")
-library(sf)
 library(rgdal)
+library(raster)
+
 
 #clone https://github.com/trucombs/FinalProj
 
-setwd("~/FinalProj")
+setwd("~/FinalProj") #may need to adjust accordingly
 
 dir.create("prism_data") #creates data archive in the working directory
 
-prism_set_dl_dir("~/prism_data")
+prism_set_dl_dir("./daily_tmean_ppt")
 
 #pull mean daily temps"
 get_prism_dailys(
@@ -89,63 +82,16 @@ dim(r)
 typeof(r)
 ##End edits from 12/8
 
-pd_image(r)
-
-library(raster)
-library(rgdal)
-
-
-plot(r)
-
-install.packages("ggplot")
-library(ggplot2)
-ggplot() +
-  geom_raster(data = df,
-              aes(x = x, y = y, alpha = HARV_RGB_Ortho)) + 
-  coord_quickmap()
-
-# S4 method for Raster,ANY
-plot(stack, col, alpha=NULL,
-     colNA=NA, add=FALSE, ext=NULL, useRaster=TRUE, interpolate=FALSE, 
-     addfun=NULL, nc, nr, maxnl=16, main, npretty=0)
-
-
-library(maptools)  ## For wrld_simpl
-library(raster)
-
-## Example SpatialPolygonsDataFrame
-data(test)
-SPDF <- subset(wrld_simpl, NAME=="Brazil")
-
-## Example RasterLayer
-r <- raster(nrow=1e3, ncol=1e3, crs=proj4string(SPDF))
-r[] <- 1:length(r)
-
-## crop and mask
-r2 <- crop(r, extent(SPDF))
-r3 <- mask(r2, SPDF)
-
-## Check that it worked
-plot(r3)
-plot(SPDF, add=TRUE, lwd=2)
-
-test2 = brick(stack)
+# ggplot() +
+#   geom_histogram(data = test3, aes(PRISM_tmean_stable_4kmD2_20200402_bil))
+# 
 
 test3  <- as.data.frame(stack, xy = TRUE)
 
-str(test3)
-
-
-stack@layers
-
-stack[[1]]
-
-ggplot() +
-  geom_histogram(data = test3, aes(PRISM_tmean_stable_4kmD2_20200402_bil))
 
 ggplot() +
   geom_raster(data = test3,
-              aes(x = x, y = y, alpha = PRISM_tmean_stable_4kmD2_20200401_bil)) + 
+              aes(x = x, y = y, alpha = PRISM_tmean_stable_4kmD2_20200401_bil)) +
   coord_quickmap()
 
 shp_path = "./AZ/Arizona_boundary.shp"
@@ -154,17 +100,57 @@ state <- readOGR(shp_path)
 
 stack.sub <- crop(stack, extent(state))
 
-test4  <- as.data.frame(stack.sub, xy = TRUE)
-
-ggplot() +
-  geom_raster(data = test4,
-              aes(x = x, y = y, alpha = PRISM_tmean_stable_4kmD2_20200401_bil)) + 
-  coord_quickmap()
-
 clip.sub <- mask(stack.sub, state)
 
-plot(clip.sub[[1]])
+clip.sub_df <- as.data.frame(clip.sub)
+
+fire = read.csv(file = 'AZ_2020_fire.csv') # read in file
+head(fire) # inspect top portion of dataset
+
+plot(clip.sub[[1]], ylab="latitude", xlab="longitude")
 plot(state, add = TRUE)
+points(fire$LONG, fire$LAT, pch = 16, col = fire$Fuels1)
+legend(x = "left",                           # Add points to legend
+       legend = unique(fire$Fuels1),
+       text.col = "black",
+       lwd = 1,
+       col = unique(fire$Fuels1),
+       lty = c(0, 0),
+       pch = 15:16,
+       bty = "n",
+       cex = 0.65,
+       pt.cex = 1)
+
+plot(clip.sub[[1]], ylab="latitude", xlab="longitude")
+plot(state, add = TRUE)
+points(fire$LONG, fire$LAT, pch = 16, col = fire$Fuels1)
+legend(x = "left",                           # Add points to legend
+       legend = unique(fire$Fuels1),
+       text.col = "black",
+       lwd = 1,
+       col = unique(fire$Fuels1),
+       lty = c(0, 0),
+       pch = 15:16,
+       bty = "n",
+       cex = 0.65,
+       pt.cex = 1)
+
+
+# print(length((fire$LONG)))
+# 
+# stack.sub_df  <- as.data.frame(stack.sub, xy = TRUE)
+# 
+# ggplot() +
+#   geom_raster(data = stack.sub_df,
+#               aes(x = x, y = y, alpha = PRISM_tmean_stable_4kmD2_20200401_bil)) + 
+#   coord_quickmap()
+
+
+plot(NULL, xlim=c(-115, -108), ylim=c(31, 37.5), yaxs="i", xaxs="i")
+plot(clip.sub[[1]], ylab="latitude", xlab="longitude", add = TRUE)
+image(seq.int(31, 38, length.out = nrow(clip.sub)), 
+      seq(-116, -107, length.out = ncol(clip.sub[[1]])),
+      clip.sub[[1]])
 
 
 
