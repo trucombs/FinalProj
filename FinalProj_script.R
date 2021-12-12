@@ -70,16 +70,6 @@ df <- as.data.frame(stack[[1]])
 
 dim(df)
 
-
-tigris::counties(state = "Arizona", cb = TRUE)
-st_as_sf() %>%
-  st_transform(terra::crs(r))
-
-exact_extract
-st_as_sf
-r <- stack[[1]]
-dim(r)
-typeof(r)
 ##End edits from 12/8
 
 # ggplot() +
@@ -106,20 +96,32 @@ clip.sub_df <- as.data.frame(clip.sub)
 
 fire = read.csv(file = 'AZ_2020_fire.csv') # read in file
 head(fire) # inspect top portion of dataset
+typeof(fire)
+fire_variables = c("Fuels1", "Cause", "Agency")  #defining relevant variables
+print(fire_variables)
+rain_good = rain[which(rain$quality=='Good'), cols]
 
-plot(clip.sub[[1]], ylab="latitude", xlab="longitude")
-plot(state, add = TRUE)
-points(fire$LONG, fire$LAT, pch = 16, col = fire$Fuels1)
-legend(x = "left",                           # Add points to legend
-       legend = unique(fire$Fuels1),
-       text.col = "black",
-       lwd = 1,
-       col = unique(fire$Fuels1),
-       lty = c(0, 0),
-       pch = 15:16,
-       bty = "n",
-       cex = 0.65,
-       pt.cex = 1)
+
+fire_sub = fire[,fire_variables]
+head(fire_sub)
+
+
+
+for (i in colnames(fire_sub)) {
+  plot(clip.sub[[1]], ylab="latitude", xlab="longitude")
+  plot(state, add = TRUE)
+  points(fire$LONG, fire$LAT, pch = 16, col = fire_sub[[i]])
+  legend(x = "left",                           # Add points to legend
+         legend = unique(fire_sub[[i]]),
+         text.col = "black",
+         lwd = 1,
+         col = unique(fire_sub[[i]]),
+         lty = c(0, 0),
+         pch = 15:16,
+         bty = "n",
+         cex = 0.65,
+         pt.cex = 1)
+}
 
 plot(clip.sub[[1]], ylab="latitude", xlab="longitude")
 plot(state, add = TRUE)
