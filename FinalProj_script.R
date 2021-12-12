@@ -117,25 +117,11 @@ for (i in colnames(fire_sub)) {
          lwd = 1,
          col = unique(fire_sub[[i]]),
          lty = c(0, 0),
-         pch = 15:16,
+         pch = 16,
          bty = "n",
-         cex = 0.65,
+         cex = 0.50,
          pt.cex = 1)
 }
-
-plot(clip.sub[[1]], ylab="latitude", xlab="longitude")
-plot(state, add = TRUE)
-points(fire$LONG, fire$LAT, pch = 16, col = fire$Fuels1)
-legend(x = "left",                           # Add points to legend
-       legend = unique(fire$Fuels1),
-       text.col = "black",
-       lwd = 1,
-       col = unique(fire$Fuels1),
-       lty = c(0, 0),
-       pch = 15:16,
-       bty = "n",
-       cex = 0.65,
-       pt.cex = 1)
 
 
 # print(length((fire$LONG)))
@@ -148,11 +134,6 @@ legend(x = "left",                           # Add points to legend
 #   coord_quickmap()
 
 
-plot(NULL, xlim=c(-115, -108), ylim=c(31, 37.5), yaxs="i", xaxs="i")
-plot(clip.sub[[1]], ylab="latitude", xlab="longitude", add = TRUE)
-image(seq.int(31, 38, length.out = nrow(clip.sub)), 
-      seq(-116, -107, length.out = ncol(clip.sub[[1]])),
-      clip.sub[[1]])
 
 
 
