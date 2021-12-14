@@ -29,15 +29,24 @@ for (i in 1:dim(fire)[1]) {
   print(i)
 }
 
-test = do.call(rbind.data.frame, list)
-typeof(test)
-test$date
+test = do.call(rbind.data.frame, list) #create dataframe from month/tmean data
+test['name'] = list_site #add site name column to dataframe
 
-points(test$date, test$data)
+site_sub = 5 #number of sites to visualize
+months = 12 #number of months for which data are available in 2020
+pt_count = site_sub*months
+test_sub = test[1:pt_count,]
 
-# for (i in 1:2) {
-#   for (j in 1:12) {
-#     points(list[[i]][j,2],list[[i]][j,1])
-#   }
-# }
+plot(test_sub$date, test_sub$data, pch = 16, col = factor(test_sub$name), main="Mean Monthly Temp: Ten Sites", sub="Subset of Ten Sites",
+     xlab="Month", ylab="Mean Temp (C)")
+legend(x = "topleft",                           # Add points to legend
+       legend = unique(test_sub$name),
+       text.col = "black",
+       lwd = 1,
+       col = unique(factor(test_sub$name)),
+       lty = c(0, 0),
+       pch = 16,
+       bty = "n",
+       cex = 0.50,
+       pt.cex = 1)
 
